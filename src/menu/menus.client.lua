@@ -31,7 +31,7 @@ function AddMenu(...)
 
         for name, value in pairs(args[1]) do
             if Menus.list[name] == nil then
-                Menus.list[name] = Menu(value)
+                Menus.list[name] = menu.new(value)
             end
             Citizen.Wait(1)
         end
@@ -41,7 +41,7 @@ function AddMenu(...)
         local name = args[1]
         local value = args[2]
         if Menus.list[name] == nil then
-            Menus.list[name] = Menu(value)
+            Menus.list[name] = menu.new(value)
         end
 
     end
@@ -203,7 +203,7 @@ local function MoveUp(menu)
         Menus.to = countBtns
     end
 
-    menu.Hover(Menus.selectedButton)
+    menu:Hover(Menus.selectedButton)
     PlaySound(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
 
 end
@@ -227,7 +227,7 @@ local function MoveDown(menu)
         Menus.to = 11
     end
 
-    menu.Hover(Menus.selectedButton)
+    menu:Hover(Menus.selectedButton)
     PlaySound(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
 
 end
@@ -328,7 +328,7 @@ local function BackBtn(menu)
     local name = Menus.curent
     local menu = Menus.list[name]
 
-    menu.Back()
+    menu:Back()
 
     local backNumber = TableLength(Menus.backMenu)
     if next(Menus.backMenu) and backNumber > 0 and menu.backLock == false then
@@ -345,7 +345,7 @@ end
 local function Exec(menu)
 
     local button = menu.buttons[Menus.selectedButton]
-    menu.Exec(Menus.selectedButton)
+    menu:Exec(Menus.selectedButton)
 
     -- Go to next menu
     if button.openMenu ~= nil and Menus.list[button.openMenu] ~= nil then
@@ -358,7 +358,7 @@ local function Exec(menu)
     elseif button.close ~= nil and button.close then
         CloseMenu()
     elseif button.back ~= nil and button.back then
-        menu.Back()
+        menu:Back()
         BackMenu()
     end
 
@@ -657,7 +657,7 @@ function MenuFrame()
                 end
 
                 -- Show Memu
-                menu.Show(Menus.from, Menus.to, Menus.selectedButton)
+                menu:Show(Menus.from, Menus.to, Menus.selectedButton)
                 DisplayInstructionalButtons("ft_menu")
 
             elseif GetCurrentInstructionalButtons() == "ft_menu" then

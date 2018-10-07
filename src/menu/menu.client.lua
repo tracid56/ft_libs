@@ -6,9 +6,243 @@
 --
 
 --
+menu = {}
+
+-- class table
+local Menu = {}
+
 --
 --
-function Menu(data)
+--
+function Menu:Back()
+
+    if self.back ~= nil then
+
+        if self.back.callback ~= nil then
+            local callback = self.back.callback
+            Citizen.CreateThread(function()
+                callback()
+            end)
+        end
+
+        -- Send to server event
+        if self.back.eventServer ~= nil then
+            TriggerServerEvent(self.back.eventServer)
+        end
+
+        -- Send to client event
+        if self.back.eventClient ~= nil then
+            TriggerEvent(self.back.eventClient)
+        end
+
+    end
+
+end
+
+--
+--
+--
+function Menu:Exec(selectedButton)
+
+    local button = self.buttons[selectedButton]
+
+    if button.exec ~= nil and button.lock ~= false then
+
+        -- Execute function
+        if button.exec.callback ~= nil then
+            local callback = button.exec.callback
+            Citizen.CreateThread(function()
+                callback(button.data)
+            end)
+        end
+
+        -- Send to server event
+        if button.exec.eventServer ~= nil then
+            TriggerServerEvent(button.exec.eventServer, button.data)
+        end
+
+        -- Send to client event
+        if button.exec.eventClient ~= nil then
+            TriggerEvent(button.exec.eventClient, button.data)
+        end
+
+    end
+
+end
+
+--
+--
+--
+function Menu:Hover(selectedButton)
+
+    local button = self.buttons[selectedButton]
+
+    if button.hover ~= nil then
+
+        -- Execute function
+        if button.hover.callback ~= nil then
+            local callback = button.hover.callback
+            Citizen.CreateThread(function()
+                callback(button.data)
+            end)
+        end
+
+        -- Send to server event
+        if button.hover.eventServer ~= nil then
+            TriggerServerEvent(button.hover.eventServer, button.data)
+        end
+
+        -- Send to client event
+        if button.hover.eventClient ~= nil then
+            TriggerEvent(button.hover.eventClient, button.data)
+        end
+
+    end
+
+end
+
+--
+--
+--
+function Menu:DrawMenuButton(data, x, y, width, height, selected)
+
+    local color = {}
+    if selected then
+        color.text = self.colors.textHover
+        color.rect = self.colors.buttonHover
+    else
+        color.text = self.colors.text
+        color.rect = self.colors.button
+    end
+
+    local textScale = self.textScale
+    local subTextScale = self.subTextScale
+
+    Text({
+        text = data.text or "Default text",
+        font = 0,
+        x = x - (self.width / 2) + 0.005,
+        y = y - (self.height / 2) + 0.0035,
+        scale = textScale,
+        red = color.text.red,
+        blue = color.text.blue,
+        green = color.text.green,
+    })
+    DrawRect(x, y, width, height, color.rect.red, color.rect.blue, color.rect.green, color.rect.alpha)
+
+    if data.subText ~= nil then
+        Text({
+            text = data.subText,
+            font = 0,
+            right = true,
+            startWrap = self.x,
+            endWrap = (self.x + (self.width / 2)) - 0.005,
+            x = x - (self.width / 2),
+            y = y - (self.height / 2) + 0.0035,
+            scale = subTextScale,
+            red = color.text.red,
+            blue = color.text.blue,
+            green = color.text.green
+        })
+    end
+
+end
+
+--
+--
+--
+function Menu:DrawMenuButtons(from, to, selectedButton)
+
+    local y = self.y + self.height
+    if self.title ~= nil then
+        y = y + 0.08
+    end
+
+    for i, button in pairs(self.buttons) do
+
+        if i >= from and i <= to then
+            if i == selectedButton then
+                selected = true
+            else
+                selected = false
+            end
+
+            self:DrawMenuButton(button, self.x, y, self.width, self.height, selected)
+            y = y + 0.04
+        end
+    end
+
+end
+
+--
+--
+--
+function Menu:ShowHeader(selectedButton)
+
+    local y = self.y
+    if self.title ~= nil then
+        y = y + 0.08
+    end
+
+    -- Top menu
+    local countText = selectedButton .. "/" .. TableLength(self.buttons)
+
+    -- Sub title
+    DrawRect(self.x, y, self.width, self.height, self.colors.header.red, self.colors.header.green, self.colors.header.blue, self.colors.header.alpha)
+    if self.menuTitle ~= nil then
+        Text({
+            text = self.menuTitle,
+            font = 0,
+            x = self.x - (self.width / 2) + 0.005,
+            y = y - (self.height / 2) + 0.0028,
+            scale = 0.4,
+        })
+    end
+
+    -- Numbers
+    Text({
+        text = countText,
+        font = 0,
+        center = 0,
+        x = self.x + self.width / 2 - 0.0385,
+        y = y - 0.015,
+        scale = 0.4,
+    })
+
+end
+
+--
+--
+--
+function Menu:ShowBigTitle()
+
+    if self.title ~= nil then
+        Text({
+            text = self.title,
+            x = self.x,
+            y = self.y,
+            scale = self.titleScale,
+            center = true,
+        })
+    end
+
+end
+
+--
+--
+--
+function Menu:Show(from, to, selectedButton)
+
+    self:ShowBigTitle()
+    self:ShowHeader(selectedButton)
+    self:DrawMenuButtons(from, to, selectedButton)
+
+end
+
+--
+--
+--
+function menu.new(data)
 
     local self = {
 
@@ -208,234 +442,7 @@ function Menu(data)
 
     end
 
-    --
-    -- Display big title
-    --
-    self.ShowBigTitle = function()
-
-        if self.title ~= nil then
-            Text({
-                text = self.title,
-                x = self.x,
-                y = self.y,
-                scale = self.titleScale,
-                center = true,
-            })
-        end
-
-    end
-
-    --
-    --
-    --
-    self.SowHeader = function(selectedButton)
-
-        local y = self.y
-        if self.title ~= nil then
-            y = y + 0.08
-        end
-
-        -- Top menu
-        local countText = selectedButton .. "/" .. TableLength(self.buttons)
-
-        -- Sub title
-        DrawRect(self.x, y, self.width, self.height, self.colors.header.red, self.colors.header.green, self.colors.header.blue, self.colors.header.alpha)
-        if self.menuTitle ~= nil then
-            Text({
-                text = self.menuTitle,
-                font = 0,
-                x = self.x - (self.width / 2) + 0.005,
-                y = y - (self.height / 2) + 0.0028,
-                scale = 0.4,
-            })
-        end
-
-        -- Numbers
-        Text({
-            text = countText,
-            font = 0,
-            center = 0,
-            x = self.x + self.width / 2 - 0.0385,
-            y = y - 0.015,
-            scale = 0.4,
-        })
-
-    end
-
-    --
-    --
-    --
-    self.DrawMenuButton = function(data, x, y, width, height, selected)
-
-        local color = {}
-        if selected then
-            color.text = self.colors.textHover
-            color.rect = self.colors.buttonHover
-        else
-            color.text = self.colors.text
-            color.rect = self.colors.button
-        end
-
-        local textScale = self.textScale
-        local subTextScale = self.subTextScale
-
-        Text({
-            text = data.text or "Default text",
-            font = 0,
-            x = x - (self.width / 2) + 0.005,
-            y = y - (self.height / 2) + 0.0035,
-            scale = textScale,
-            red = color.text.red,
-            blue = color.text.blue,
-            green = color.text.green,
-        })
-        DrawRect(x, y, width, height, color.rect.red, color.rect.blue, color.rect.green, color.rect.alpha)
-
-        if data.subText ~= nil then
-            Text({
-                text = data.subText,
-                font = 0,
-                right = true,
-                startWrap = self.x,
-                endWrap = (self.x + (self.width / 2)) - 0.005,
-                x = x - (self.width / 2),
-                y = y - (self.height / 2) + 0.0035,
-                scale = subTextScale,
-                red = color.text.red,
-                blue = color.text.blue,
-                green = color.text.green
-            })
-        end
-
-    end
-
-    --
-    --
-    --
-    self.DrawMenuButtons = function(from, to, selectedButton)
-
-        local y = self.y + self.height
-        if self.title ~= nil then
-            y = y + 0.08
-        end
-
-        for i, button in pairs(self.buttons) do
-
-            if i >= from and i <= to then
-                if i == selectedButton then
-                    selected = true
-                else
-                    selected = false
-                end
-
-                self.DrawMenuButton(button, self.x, y, self.width, self.height, selected)
-                y = y + 0.04
-            end
-        end
-
-    end
-
-    --
-    --
-    --
-    self.Hover = function(selectedButton)
-
-        local button = self.buttons[selectedButton]
-
-        if button.hover ~= nil then
-
-            -- Execute function
-            if button.hover.callback ~= nil then
-                local callback = button.hover.callback
-                Citizen.CreateThread(function()
-                    callback(button.data)
-                end)
-            end
-
-            -- Send to server event
-            if button.hover.eventServer ~= nil then
-                TriggerServerEvent(button.hover.eventServer, button.data)
-            end
-
-            -- Send to client event
-            if button.hover.eventClient ~= nil then
-                TriggerEvent(button.hover.eventClient, button.data)
-            end
-
-        end
-
-    end
-
-    --
-    --
-    --
-    self.Exec = function(selectedButton)
-
-        local button = self.buttons[selectedButton]
-
-        if button.exec ~= nil and button.lock ~= false then
-
-            -- Execute function
-            if button.exec.callback ~= nil then
-                local callback = button.exec.callback
-                Citizen.CreateThread(function()
-                    callback(button.data)
-                end)
-            end
-
-            -- Send to server event
-            if button.exec.eventServer ~= nil then
-                TriggerServerEvent(button.exec.eventServer, button.data)
-            end
-
-            -- Send to client event
-            if button.exec.eventClient ~= nil then
-                TriggerEvent(button.exec.eventClient, button.data)
-            end
-
-        end
-
-    end
-
-    --
-    --
-    --
-    self.Back = function()
-
-        if self.back ~= nil then
-
-            if self.back.callback ~= nil then
-                local callback = self.back.callback
-                Citizen.CreateThread(function()
-                    callback()
-                end)
-            end
-
-            -- Send to server event
-            if self.back.eventServer ~= nil then
-                TriggerServerEvent(self.back.eventServer)
-            end
-
-            -- Send to client event
-            if self.back.eventClient ~= nil then
-                TriggerEvent(self.back.eventClient)
-            end
-
-        end
-
-    end
-
-    --
-    --
-    --
-    self.Show = function(from, to, selectedButton)
-
-        self.ShowBigTitle()
-        self.SowHeader(selectedButton)
-        self.DrawMenuButtons(from, to, selectedButton)
-
-    end
-
+    setmetatable(self, { __index = Menu })
     return self
 
 end

@@ -31,3 +31,15 @@ AddEventHandler('ft_libs:DebugMode', function(status)
     end
 
 end)
+
+--
+-- Get resolution
+--
+function GetResolution()
+    local W, H = GetActiveScreenResolution()
+    if (W/H) > 3.5 then
+        return GetScreenResolution()
+    else
+        return W, H
+    end
+end

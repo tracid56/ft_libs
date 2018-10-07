@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Released]
 
+## [1.3] - 2018-00-00
+### Added
+- Implement GetResolution function
+
+### Changed
+- Optimization and refactoring Menu
+
 ## [1.2] - 2018-10-08
 ### Added
 - Implement GetPlayerPed function
