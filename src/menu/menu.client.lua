@@ -104,7 +104,7 @@ end
 --
 --
 --
-function Menu:DrawMenuButton(data, x, y, width, height, selected)
+function Menu:DrawMenuButton(data, y, selected)
 
     local color = {}
     if selected then
@@ -118,33 +118,46 @@ function Menu:DrawMenuButton(data, x, y, width, height, selected)
     local textScale = self.textScale
     local subTextScale = self.subTextScale
 
+    local resolution = FormatXWYH(self.width, self.height)
+
     Text({
         text = data.text or "Default text",
         font = 0,
-        x = x - (self.width / 2) + 0.005,
-        y = y - (self.height / 2) + 0.0035,
+        x = self.x,
+        y = self.y + y,
         scale = textScale,
         red = color.text.red,
         blue = color.text.blue,
         green = color.text.green,
     })
-    DrawRect(x, y, width, height, color.rect.red, color.rect.blue, color.rect.green, color.rect.alpha)
 
-    if data.subText ~= nil then
-        Text({
-            text = data.subText,
-            font = 0,
-            right = true,
-            startWrap = self.x,
-            endWrap = (self.x + (self.width / 2)) - 0.005,
-            x = x - (self.width / 2),
-            y = y - (self.height / 2) + 0.0035,
-            scale = subTextScale,
-            red = color.text.red,
-            blue = color.text.blue,
-            green = color.text.green
-        })
-    end
+    -- if data.subText ~= nil then
+    --     Text({
+    --         text = data.subText,
+    --         font = 0,
+    --         right = true,
+    --         startWrap = self.x,
+    --         endWrap = (self.x + (self.width / 2)) - 0.005,
+    --         x = self.x - (self.width / 2),
+    --         y = y - (self.height / 2) + 0.0035,
+    --         scale = subTextScale,
+    --         red = color.text.red,
+    --         blue = color.text.blue,
+    --         green = color.text.green
+    --     })
+    -- end
+
+    -- Draw rec
+    DrawRect(
+        self.x + (resolution.width / 2),
+        self.y + y + (resolution.height /2),
+        resolution.width,
+        resolution.height,
+        color.rect.red,
+        color.rect.blue,
+        color.rect.green,
+        color.rect.alpha
+    )
 
 end
 
@@ -153,10 +166,13 @@ end
 --
 function Menu:DrawMenuButtons(from, to, selectedButton)
 
-    local y = self.y + self.height
-    if self.title ~= nil then
-        y = y + 0.08
-    end
+    local y = self.y
+    -- local y = self.y + self.height
+    -- if self.title ~= nil then
+    --     y = y + 0.08
+    -- end
+
+    local resolution = FormatXWYH(self.width, self.height)
 
     for i, button in pairs(self.buttons) do
 
@@ -167,8 +183,8 @@ function Menu:DrawMenuButtons(from, to, selectedButton)
                 selected = false
             end
 
-            self:DrawMenuButton(button, self.x, y, self.width, self.height, selected)
-            y = y + 0.04
+            self:DrawMenuButton(button, y, selected)
+            y = y + resolution.height
         end
     end
 
@@ -233,8 +249,8 @@ end
 --
 function Menu:Show(from, to, selectedButton)
 
-    self:ShowBigTitle()
-    self:ShowHeader(selectedButton)
+    -- self:ShowBigTitle()
+    -- self:ShowHeader(selectedButton)
     self:DrawMenuButtons(from, to, selectedButton)
 
 end
@@ -246,16 +262,16 @@ function menu.new(data)
 
     local self = {
 
-        x = 0.9,
-        y = 0.25,
+        x = 0,
+        y = 0,
         title = data.title or nil,
         menuTitle = data.menuTitle or nil,
         titleScale = data.titleScale or 1.0,
         textScale = data.textScale or 0.36,
         subTextScale = data.subTextScale or 0.36,
         position = data.position or 2,
-        width = data.width or 0.2,
-        height = data.height or 0.04,
+        width = data.width or 430,
+        height = data.height or 200,
         defaultButtonPosition = data.defaultButtonPosition or 1,
 
         colors = {
@@ -314,9 +330,9 @@ function menu.new(data)
     end
 
     -- Get position (1 = left / 2 - right [default])
-    if data.position == 1 then
-        self.x = self.width / 2
-    end
+    -- if data.position == 1 then
+        -- self.x = self.width / 2
+    -- end
 
     -- Get color
     if data.colors ~= nil then

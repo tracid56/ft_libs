@@ -152,7 +152,7 @@ end
 -- Debug print
 --
 
-debugMode = false
+debugMode = true
 
 --
 --

@@ -36,10 +36,24 @@ end)
 -- Get resolution
 --
 function GetResolution()
-    local W, H = GetActiveScreenResolution()
-    if (W/H) > 3.5 then
-        return GetScreenResolution()
-    else
-        return W, H
-    end
+
+    local width, height = GetActiveScreenResolution()
+    return {
+        ["width"] = width,
+        ["height"] = height,
+    }
+
+end
+
+--
+--
+--
+function FormatXWYH(width, height)
+
+    local resolution = GetResolution()
+    return {
+        ["width"] = width / resolution.width,
+        ["height"] = height / resolution.height,
+    }
+
 end

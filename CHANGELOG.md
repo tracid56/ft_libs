@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ## [1.3] - 2018-00-00
 ### Added
 - Implement GetResolution function
+- Implement FormatXWYH function
 
 ### Changed
 - Optimization and refactoring Menu
